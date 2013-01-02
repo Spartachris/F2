@@ -57,8 +57,8 @@ _pistol = "M9"; _pistolmag = "15Rnd_9x19_M9";																								// Pistols 
 
 _grenade = "HandGrenade_West"; _smokegrenade = "SmokeShell";_smokegrenadegreen = "SmokeShellGreen";																				// Grenades
 
-_bagmedium = "US_Assault_Pack_EP1";		// 8+ slots																							// Backpack for assistant gunners (AAR, AMMG, AMAT, AHAT), so that they don't have to drop ammo themselves
-_baglarge =  "US_Backpack_EP1"; 		// 12+ slots
+_bagmedium = "ACE_Rucksack_MOLLE_ACU";		// 8+ slots																							// Backpack for assistant gunners (AAR, AMMG, AMAT, AHAT), so that they don't have to drop ammo themselves
+_baglarge =  "ACE_Rucksack_MOLLE_DMARPAT"; 		// 12+ slots
 		//  6 Slots: "CZ_Vestpouch_EP1"
 		//  8 Slots: "US_Assault_Pack_EP1", "US_Patrol_Pack_EP1", "TK_Assault_Pack_EP1", "TK_RPG_Backpack_EP1"
 		// 12 Slots: "US_Backpack_EP1", "TK_ALICE_Pack_EP1",
@@ -71,10 +71,10 @@ _baglarge =  "US_Backpack_EP1"; 		// 12+ slots
 
 _AR = "M249_EP1"; _ARmag = "100Rnd_556x45_M249";																							// Automatic Rifleman
 
-_MMG = "M240"; _MMGmag = "100Rnd_762x51_M240";																					// Medium MG
+_MMG = "M240"; _MMGmag = "100Rnd_762x51_M240";																								// Medium MG
 
-_HMG = "M2HD_mini_TriPod_US_Bag_EP1";																										// Heavy MG (note: HMG is an assembled weapon, gunner carries weapon)
-_HMGmount = "Tripod_Bag";																													// Assistant Heavy MG (note: HMG is an assembled weapon, assistant carries bipod/tripd)
+_HMG = "ACE_M2HBProxy";																										// Heavy MG (note: HMG is an assembled weapon, gunner carries weapon)
+_HMGmount = "ACE_M3TripodProxy";																											// Assistant Heavy MG (note: HMG is an assembled weapon, assistant carries bipod/tripd)
 
 _RAT = "M136"; _RATmag = "M136";																											// Rifleman AT
 
@@ -82,8 +82,8 @@ _MAT = "MAAWS"; _MATmag1 = "MAAWS_HEAT"; _MATmag2 = "MAAWS_HEDP";															
 
 _HAT = "Javelin"; _HATmag1 = "Javelin"; _HATmag2 = "Javelin";																				// Heavy AT Gunner
 
-_MTR = "M252_US_Bag_EP1";																													// Mortar Gunner (note: Mortar is an assembled weapon, gunner carries weapon)
-_MTRmount = "Tripod_Bag";																													// Mortar Assistant Gunner (note: Mortar is an assembled weapon, assistant carries bipod/tripd)
+_MTR = "ACE_M224Proxy";																													// Mortar Gunner (note: Mortar is an assembled weapon, gunner carries weapon)
+_MTRmount = "ACE_M224TripodProxy";																												// Mortar Assistant Gunner (note: Mortar is an assembled weapon, assistant carries bipod/tripd)
 
 _RAA = "Stinger"; _RAAmag = "Stinger";																										// Rifleman AA (anti-air)
 
@@ -91,6 +91,20 @@ _SNrifle = "M24_des_EP1"; _SNriflemag = "5Rnd_762x51_M24";																					/
 
 _mine = "Mine"; _satchel = "pipebomb";																										// Engineer
 
+// ====================================================================================
+// ACE SPECIFCS																		
+_bagmedic = "ACE_Rucksack_MOLLE_DMARPAT_Medic";
+_elastic = "ACE_LargeBandage";
+_bandage = "ACE_Bandage";
+_medkit = "ACE_Medkit";
+_epi = "ACE_Epinephrine";
+_morphine = "ACE_Morphine";
+_CLU = "ACE_Javelin_CLU";
+_HMGmag = "ACE_M2_CSWDM";
+_DAGR = "ACE_DAGR";
+_KES = "ACE_Kestrel4500";
+_SPAREB = "ACE_SpareBarrel";
+_LASERTRI = "ACE_SOFLAMTripod";
 // ====================================================================================
 
 // INTERPRET PASSED VARIABLES
@@ -107,7 +121,11 @@ _unit = _this select 1;							// expecting name of unit; originally passed by us
 removeBackpack _unit;
 removeallweapons _unit;
 _unit addweapon "NVGoggles"; 					// add universal NVG for this faction
-
+_unit addweapon "ACE_Earplugs";
+_unit addweapon "ACE_Map";
+_unit addweapon "ACE_Map_Tools";
+_unit addweapon "ACE_GlassesLHD_glasses";
+[_unit, 1, 1, 1] call ACE_fnc_PackIFAK;
 //removeAllItems _unit;						// remove default items: map, compass, watch, radio (and GPS for team/squad leaders)
 ////_unit addweapon "ItemGPS";					// add universal GPS for this faction (nb: misc items not cleared
 //_unit addweapon "ItemMap";				// etc
@@ -129,7 +147,7 @@ switch (_typeofUnit) do
 // LOADOUT: COMMANDER
 	case "co":
 	{
-		{_unit addmagazine _glriflemag} foreach [1,2,3,4,5,6,7];	//_COriflemag
+		{_unit addmagazine _glriflemag} foreach [1,2,3,4,5,6];	//_COriflemag
 		{_unit addmagazine _glmag} foreach [1,2,3];
 		{_unit addmagazine _glsmokewhite} foreach [1,2,3];
 		_unit addweapon _glrifle;									//_COrifle
@@ -139,21 +157,22 @@ switch (_typeofUnit) do
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		{_unit addmagazine _smokegrenadegreen;} foreach [1];
 		_unit addWeapon "Binocular_Vector";
+		_unit addmagazine "Laserbatteries";
 		_unit addweapon "ItemGPS";
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_glriflemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 1];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenadegreen, 1];			
-			(unitBackpack _unit) addMagazineCargoGlobal [_glmag, 2];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _glriflemag, 5] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 1] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenadegreen, 1] call ACE_fnc_PackMagazine;
+			[_unit, _glmag, 2] call ACE_fnc_PackMagazine;
 		};
 	};
   
 // LOADOUT: DEPUTY COMMANDER AND SQUAD LEADER
 	case "dc":
 	{
-		{_unit addmagazine _glriflemag} foreach [1,2,3,4,5,6,7];	//_DCriflemag
+		{_unit addmagazine _glriflemag} foreach [1,2,3,4,5,6];	//_DCriflemag
 		{_unit addmagazine _glmag} foreach [1,2,3];
 		{_unit addmagazine _glsmokewhite} foreach [1,2,3];
 		_unit addweapon _glrifle;									//_DCrifle
@@ -163,14 +182,14 @@ switch (_typeofUnit) do
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		{_unit addmagazine _smokegrenadegreen;} foreach [1];
 		_unit addWeapon "Binocular_Vector";
+		_unit addmagazine "Laserbatteries";
 		_unit addweapon "ItemGPS";
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_glriflemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 1];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenadegreen, 1];			
-			(unitBackpack _unit) addMagazineCargoGlobal [_glmag, 2];
+			_unit addweapon _bagmedium;
+			[_unit, _glriflemag, 5] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 1] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenadegreen, 1] call ACE_fnc_PackMagazine;
+			[_unit, _glmag, 2] call ACE_fnc_PackMagazine;
 		};
 	};  
 
@@ -179,7 +198,15 @@ switch (_typeofUnit) do
 	{
 		{_unit addmagazine _carbinemag} foreach [1,2,3,4,5];	
 		_unit addweapon _carbine;
-		{_unit addmagazine _smokegrenade;} foreach [1,2,3];		
+		{_unit addmagazine _smokegrenade;} foreach [1,2,3];	
+		if (_useBackpacks==1) then {
+			_unit addweapon _bagmedic;
+			[_unit, _elastic, 7] call ACE_fnc_PackMagazine;
+			[_unit, _bandage, 10] call ACE_fnc_PackMagazine;
+			[_unit, _epi, 10] call ACE_fnc_PackMagazine;
+			[_unit, _morphine, 10] call ACE_fnc_PackMagazine;
+			[_unit, _medkit, 10] call ACE_fnc_PackMagazine;
+		};		
 	};
 
 // LOADOUT: FIRE TEAM LEADER
@@ -195,13 +222,13 @@ switch (_typeofUnit) do
 		_unit addweapon "Binocular";
 		_unit addweapon "ItemGPS";
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_glriflemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_glsmokewhite, 1];			
-			(unitBackpack _unit) addMagazineCargoGlobal [_glmag, 3];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _glriflemag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _glsmokewhite, 1] call ACE_fnc_PackMagazine;
+			[_unit, _glmag, 3] call ACE_fnc_PackMagazine;
 		};
-	};		
+	};	
 
 
 // LOADOUT: AUTOMATIC RIFLEMAN
@@ -227,24 +254,35 @@ switch (_typeofUnit) do
 			{_unit addmagazine _riflemag} foreach [1,2];
 			{_unit addmagazine _grenade} foreach [1];
 			{_unit addmagazine _smokegrenade;} foreach [1];
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_ARmag, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_RATmag, 1];
-			(unitBackpack _unit) addMagazineCargoGlobal [_riflemag, 2];
+			_unit addweapon _baglarge;
+			[_unit, _ARmag, 3] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _glriflemag, 2] call ACE_fnc_PackMagazine;
+			[_unit, _SPAREB, 1] call ACE_fnc_PackWeapon;
 		} else {
 			{_unit addmagazine _ARmag} foreach [1,2];
 		};
-	};	
+	};			
 	
 // LOADOUT: RIFLEMAN (AT)	
 	case "rat":
 	{
-		{_unit addmagazine _carbinemag} foreach [1,2,3,4,5];
+		{_unit addmagazine _carbinemag} foreach [1,2,3,4,5,6];
 		_unit addweapon _carbine;
-		{_unit addmagazine _RATmag} foreach [1];
-		{_unit addmagazine _smokegrenade} foreach [1];		
-		_unit addweapon _RAT;
+		{_unit addmagazine _smokegrenade} foreach [1];
+		if (_useBackpacks==1) then {
+			
+			_unit addweapon _bagmedium;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _carbinemag, 5] call ACE_fnc_PackMagazine;
+			[_unit, _bagmedium] call ACE_fnc_PutWeaponOnBack;
+			_unit addweapon _RAT;
+		}
+		else
+		{
+			_unit addweapon _RAT;
+		};
 	};		
 	
 // LOADOUT: SURFACE TO AIR MISSILE GUNNER 
@@ -266,9 +304,8 @@ switch (_typeofUnit) do
 			{_unit addmagazine _riflemag} foreach [1,2];
 			{_unit addmagazine _grenade} foreach [1];
 			{_unit addmagazine _smokegrenade;} foreach [1];
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_RAAmag, 2];
+			_unit addweapon _baglarge;
+			[_unit, _RAAmag, 2] call ACE_fnc_PackMagazine;
 		} else {
 			{_unit addmagazine _RAAmag} foreach [1];
 		};			
@@ -286,9 +323,10 @@ switch (_typeofUnit) do
 // LOADOUT: MEDIUM MG ASSISTANT GUNNER	
 	case "mmgag":
 	{
-		{_unit addmagazine _riflemag} foreach [1,2,3,4,5,6];
+		{_unit addmagazine _riflemag} foreach [1,2,3,4,5];
 		_unit addweapon _rifle;
 		_unit addWeapon "Binocular_Vector";	
+		_unit addmagazine "Laserbatteries";
 		{_unit addmagazine _grenade} foreach [1];
 		{_unit addmagazine _smokegrenade;} foreach [1];
 		// Put ammo in backpack. If not OA unit, then should add directly to inv of unit instead.
@@ -296,10 +334,11 @@ switch (_typeofUnit) do
 			{_unit addmagazine _riflemag} foreach [1,2];
 			{_unit addmagazine _grenade} foreach [1];
 			{_unit addmagazine _smokegrenade;} foreach [1];
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_MMGmag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_riflemag, 2];
+			_unit addweapon _baglarge;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _MMGmag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _riflemag, 2] call ACE_fnc_PackMagazine;
+			[_unit, _SPAREB, 1] call ACE_fnc_PackWeapon;
 		} else {
 			{_unit addmagazine _MMGmag} foreach [1,2];
 		};				
@@ -312,7 +351,7 @@ switch (_typeofUnit) do
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];
 			// If not an OA unit, this attachment cannot carry an HMG
-			_unit addBackpack _HMG;
+			_unit addweapon _HMG;
 	};	
 	
 // LOADOUT: HEAVY MG ASSISTANT GUNNER
@@ -321,11 +360,21 @@ switch (_typeofUnit) do
 		{_unit addmagazine _riflemag} foreach [1,2,3,4,5];
 		_unit addweapon _rifle;
 		_unit addWeapon "Binocular_Vector";
+		_unit addmagazine "Laserbatteries";
 		{_unit addmagazine _smokegrenade;} foreach [1];		
 			// If not an OA unit, this attachment cannot carry an HMG 
-			_unit addBackpack _HMGmount;
+			_unit  addweapon _HMGmount;
 	};		
-
+// LOADOUT: HEAVY MG AMMO BEARER
+	case "hmgab":
+	{
+		{_unit addmagazine _riflemag} foreach [1,2,3,4,5];
+		_unit addweapon _rifle;
+		{_unit addmagazine _smokegrenade;} foreach [1];		
+		_unit addweapon _baglarge;
+		[_unit,_HMGmag,2] call ACE_fnc_PackMagazine;
+		
+	};		
 // LOADOUT: MEDIUM AT GUNNER
 	case "matg":
 	{
@@ -342,16 +391,17 @@ switch (_typeofUnit) do
 		{_unit addmagazine _riflemag} foreach [1,2,3,4,5];
 		_unit addweapon _rifle;
 		_unit addWeapon "Binocular_Vector";
+		_unit addmagazine "Laserbatteries";
 		{_unit addmagazine _smokegrenade;} foreach [1];		
 			// Put ammo in backpack. If not OA unit, then should add directly to inv of unit instead.
 		if (_useBackpacks==1) then {
 			{_unit addmagazine _riflemag} foreach [1,2];
 			{_unit addmagazine _grenade} foreach [1];
 			{_unit addmagazine _smokegrenade;} foreach [1];
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_MATmag1, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_MATmag2, 2];
+			_unit addweapon _baglarge;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _MATmag1, 3] call ACE_fnc_PackMagazine;
+			[_unit, _MATmag2, 2] call ACE_fnc_PackMagazine;
 		} else {
 			{_unit addmagazine _MATmag1} foreach [1];
 			{_unit addmagazine _MATmag2} foreach [1];
@@ -365,8 +415,8 @@ switch (_typeofUnit) do
 		{_unit addmagazine _carbinemag} foreach [1,2,3,4,5];
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];	
-		{_unit addmagazine _HATmag1} foreach [1];
-		_unit addweapon _HAT;			
+		_unit addweapon _HAT;	
+		_unit addweapon _CLU;
 	};	
 	
 // LOADOUT: HEAVY AT ASSISTANT GUNNER	
@@ -375,20 +425,20 @@ switch (_typeofUnit) do
 		{_unit addmagazine _riflemag} foreach [1,2,3,4,5];
 		_unit addweapon _rifle;
 		_unit addWeapon "Binocular_Vector";	
+		_unit addmagazine "Laserbatteries";
 		{_unit addmagazine _smokegrenade;} foreach [1];	
 			// Put ammo in backpack. If not OA unit, then should add directly to inv of unit instead.
 		if (_useBackpacks==1) then {
 		{_unit addmagazine _riflemag} foreach [1,2];
 			{_unit addmagazine _grenade} foreach [1];
 			{_unit addmagazine _smokegrenade;} foreach [1];
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_HATmag1, 2];
+			_unit addweapon _HAT;	
+			[_unit, _HAT] call ACE_fnc_PutWeaponOnBack;
+			_unit addweapon _HAT;			
 		} else {
-			{_unit addmagazine _HATmag1} foreach [1];
+			_unit addweapon _HAT;	
 		};					
-	};		
-	
+	};			
 // LOADOUT: MORTAR GUNNER
 	case "mtrg":
 	{
@@ -396,7 +446,7 @@ switch (_typeofUnit) do
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];	
 			// If not an OA unit, this attachment cannot carry a mortar
-			_unit addBackpack _MTR;
+			_unit  addbackpack _MTR;
 	};	
 	
 // LOADOUT: MORTAR ASSISTANT GUNNER
@@ -405,9 +455,10 @@ switch (_typeofUnit) do
 		{_unit addmagazine _carbinemag} foreach [1,2,3,4,5];
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];	
-		_unit addWeapon "Binocular_Vector";			
+		_unit addWeapon "Binocular_Vector";	
+		_unit addmagazine "Laserbatteries";		
 			// If not an OA unit, this attachment cannot carry a mortar 
-			_unit addBackpack _MTRmount;
+			_unit addbackpack _MTRmount;
 	};		
 	
 // LOADOUT: SNIPER
@@ -417,6 +468,9 @@ switch (_typeofUnit) do
 		_unit addweapon _SNrifle;
 		_unit addweapon "Binocular";
 		{_unit addmagazine _smokegrenade;} foreach [1];
+		_unit addWeapon _KES;
+		_unit addWeapon _DAGR;
+
 	};		
 	
 // LOADOUT: SPOTTER
@@ -425,6 +479,10 @@ switch (_typeofUnit) do
 		{_unit addmagazine _riflemag} foreach [1,2,3,4];
 		_unit addweapon _rifle;
 		_unit addWeapon "Binocular_Vector";	
+		_unit addmagazine "Laserbatteries";
+		_unit addWeapon _KES;
+		_unit addWeapon _DAGR;
+		_unit addWeapon _LASERTRI;
 		{_unit addmagazine _smokegrenade;} foreach [1];
 	};			
 	
@@ -451,16 +509,14 @@ switch (_typeofUnit) do
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade} foreach [1];
 		{_unit addmagazine _grenade} foreach [1];
-		{_unit addmagazine _satchel} foreach [1,2];
-		{_unit addmagazine _mine} foreach [1];
 			// Put ammo in backpack. If not OA unit, then should add directly to inv of unit instead.
 		if (_useBackpacks==1) then {
-			_unit addBackpack _baglarge;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_satchel, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_mine, 1];	
-			(unitBackpack _unit) addMagazineCargoGlobal [_grenade, 2];	
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 2];
+			_unit addweapon _baglarge;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _satchel, 2] call ACE_fnc_PackMagazine;
+			[_unit, _mine, 1] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
 		}; // no else; engineer inventory already full with 4 mags, 1 gren, 1 smoke, 2 satchels, 1 mine		
 	};	
 		
@@ -472,11 +528,11 @@ switch (_typeofUnit) do
 		{_unit addmagazine _grenade} foreach [1,2];
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_riflemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_grenade, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 2];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _riflemag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
 		};
 	};
 
@@ -488,11 +544,11 @@ switch (_typeofUnit) do
 		{_unit addmagazine _grenade} foreach [1,2];
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_carbinemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_grenade, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 2];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _carbinemag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
 		};
 	};
 
@@ -504,11 +560,11 @@ switch (_typeofUnit) do
 		{_unit addmagazine _grenade} foreach [1,2];
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_smgmag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_grenade, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_smokegrenade, 2];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _smgmag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
 		};
 	};
 
@@ -522,14 +578,14 @@ switch (_typeofUnit) do
 		{_unit addmagazine _grenade} foreach [1,2];
 		{_unit addmagazine _smokegrenade;} foreach [1,2];
 		if (_useBackpacks==1) then {
-			_unit addBackpack _bagmedium;
-			clearMagazineCargoGlobal (unitBackpack _unit);
-			(unitBackpack _unit) addMagazineCargoGlobal [_glriflemag, 4];
-			(unitBackpack _unit) addMagazineCargoGlobal [_grenade, 2];
-			(unitBackpack _unit) addMagazineCargoGlobal [_glmag, 2];
+			_unit addweapon _bagmedium;
+			//clearMagazineCargoGlobal (unitBackpack _unit);
+			[_unit, _smgmag, 4] call ACE_fnc_PackMagazine;
+			[_unit, _grenade, 2] call ACE_fnc_PackMagazine;
+			[_unit, _smokegrenade, 2] call ACE_fnc_PackMagazine;
 		};
 	};
-	
+
 // CARGO: CAR - room for 10 weapons and 50 cargo items
 	case "v_car":
 	{
@@ -540,12 +596,17 @@ switch (_typeofUnit) do
 		_unit addMagazineCargoGlobal [_glriflemag, 8];
 		_unit addMagazineCargoGlobal [_carbinemag, 10];
 		_unit addMagazineCargoGlobal [_armag, 5];
-		_unit addMagazineCargoGlobal [_ratmag, 1];
+		_unit addWeaponCargoGlobal [_RAT, 1];
 		_unit addMagazineCargoGlobal [_grenade, 4];
 		_unit addMagazineCargoGlobal [_smokegrenade, 4];
 		_unit addMagazineCargoGlobal [_smokegrenadegreen, 2];
 		_unit addMagazineCargoGlobal [_glmag, 4];
 		_unit addMagazineCargoGlobal [_glsmokewhite, 4];
+		_unit addMagazineCargoGlobal [_elastic, 5];
+		_unit addMagazineCargoGlobal [_bandage, 5];
+		_unit addMagazineCargoGlobal [_epi, 5];
+		_unit addMagazineCargoGlobal [_morphine, 5];
+		_unit addMagazineCargoGlobal [_medkit, 5];
 	};	
 	
 // CARGO: TRUCK - room for 50 weapons and 200 cargo items
@@ -558,7 +619,7 @@ switch (_typeofUnit) do
 		_unit addMagazineCargoGlobal [_glriflemag, 40];
 		_unit addMagazineCargoGlobal [_carbinemag, 40];
 		_unit addMagazineCargoGlobal [_armag, 22];
-		_unit addMagazineCargoGlobal [_ratmag, 6];
+		_unit addWeaponCargoGlobal [_RAT, 6];
 		_unit addMagazineCargoGlobal [_grenade, 12];
 		_unit addMagazineCargoGlobal [_smokegrenade, 12];
 		_unit addMagazineCargoGlobal [_smokegrenadegreen, 4];
@@ -576,13 +637,28 @@ switch (_typeofUnit) do
 		_unit addMagazineCargoGlobal [_glriflemag, 20];
 		_unit addMagazineCargoGlobal [_carbinemag, 20];
 		_unit addMagazineCargoGlobal [_armag, 8];
-		_unit addMagazineCargoGlobal [_ratmag, 2];
+		_unit addWeaponCargoGlobal [_RAT, 2];
 		_unit addMagazineCargoGlobal [_grenade, 8];
 		_unit addMagazineCargoGlobal [_smokegrenade, 8];
 		_unit addMagazineCargoGlobal [_smokegrenadegreen, 2];
 		_unit addMagazineCargoGlobal [_glmag, 8];
 		_unit addMagazineCargoGlobal [_glsmokewhite, 4];
-	};	
+
+	};
+	case "v_med":
+	{
+		_veh = TypeOf _unit;
+		_maxmags = getNumber (configFile >> "CfgVehicles" >> _veh >> "transportMaxMagazines");
+		_maxmags = _maxmags / 5;
+		clearWeaponCargoGlobal _unit;
+		clearMagazineCargoGlobal _unit;
+		_unit addMagazineCargoGlobal [_elastic, _maxmags];
+		_unit addMagazineCargoGlobal [_bandage, _maxmags];
+		_unit addMagazineCargoGlobal [_epi, _maxmags];
+		_unit addMagazineCargoGlobal [_morphine, _maxmags];
+		_unit addMagazineCargoGlobal [_medkit, _maxmags];
+	};
+	
 // LOADOUT: DEFAULT/UNDEFINED (use RIFLEMAN)
    default
    {
