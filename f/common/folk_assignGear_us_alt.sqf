@@ -446,7 +446,7 @@ switch (_typeofUnit) do
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];	
 			// If not an OA unit, this attachment cannot carry a mortar
-			_unit  addbackpack _MTR;
+			_unit  addweapon _MTR;
 	};	
 	
 // LOADOUT: MORTAR ASSISTANT GUNNER
@@ -458,7 +458,7 @@ switch (_typeofUnit) do
 		_unit addWeapon "Binocular_Vector";	
 		_unit addmagazine "Laserbatteries";		
 			// If not an OA unit, this attachment cannot carry a mortar 
-			_unit addbackpack _MTRmount;
+			_unit addweapon _MTRmount;
 	};		
 	
 // LOADOUT: SNIPER

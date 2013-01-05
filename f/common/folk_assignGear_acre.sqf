@@ -70,6 +70,17 @@ switch (_typeofUnit) do
 // LOADOUT: COMMANDER
 	case "co":
 	{
+		if([_unit] call ACE_fnc_HasRuck) then
+		{
+			if(!([_unit] call ACE_fnc_HasWeapon)) then
+			{
+				[_unit,[_unit] call ACE_fnc_WeaponOnBackName ] call ACE_fnc_RemWeapon;
+			}
+			else
+			{
+				[_unit, [_unit] call ACE_fnc_FindRuck] call ACE_fnc_PutWeaponOnBack;
+			};
+		};
 		_unit addWeapon _radio1;
 		_unit addWeapon _radio2;
 	};
@@ -77,6 +88,17 @@ switch (_typeofUnit) do
 // LOADOUT: DEPUTY COMMANDER AND SQUAD LEADER
 	case "dc":
 	{
+		if([_unit] call ACE_fnc_HasRuck) then
+		{
+			if(!([_unit] call ACE_fnc_HasWeapon)) then
+			{
+				[_unit,[_unit] call ACE_fnc_WeaponOnBackName ] call ACE_fnc_RemWeapon;
+			}
+			else
+			{
+				[_unit, [_unit] call ACE_fnc_FindRuck] call ACE_fnc_PutWeaponOnBack;
+			};
+		};
 		_unit addWeapon _radio1;
 		_unit addWeapon _radio2;
 	}; 
@@ -200,8 +222,19 @@ switch (_typeofUnit) do
 	case "c":
 	{
 		if(leader group _unit == _unit) then {
-				_unit addWeapon _radio1;
+			if([_unit] call ACE_fnc_HasRuck) then
+			{
+				if(!([_unit] call ACE_fnc_HasWeapon)) then
+				{
+					[_unit,[_unit] call ACE_fnc_WeaponOnBackName ] call ACE_fnc_RemWeapon;
+				}
+				else
+				{
+					[_unit, [_unit] call ACE_fnc_FindRuck] call ACE_fnc_PutWeaponOnBack;
+				};
 			};
+			_unit addWeapon _radio1;
+		};
 			_unit addWeapon _radio2;
 	};			
 	
@@ -209,6 +242,13 @@ switch (_typeofUnit) do
 	case "p":
 	{
 		if(leader group _unit == _unit) then {
+				if([_unit] call ACE_fnc_HasRuck) then
+				{
+					if(!([_unit] call ACE_fnc_HasWeapon)) then
+					{
+						[_unit,[_unit] call ACE_fnc_WeaponOnBackName ] call ACE_fnc_RemWeapon;
+					};
+				};
 				_unit addWeapon _radio1;
 			};
 			_unit addWeapon _radio2;				

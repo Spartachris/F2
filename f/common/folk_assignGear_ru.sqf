@@ -83,7 +83,7 @@ _MAT = "RPG7V"; _MATmag1 = "PG7V"; _MATmag2 = "PG7VR";																						// M
 
 _HAT = "MetisLauncher"; _HATmag1 = "AT13"; _HATmag2 = "AT13";																				// Heavy AT Gunner
 
-_MTR = "ACE_2b14Proxy";																												// Mortar Gunner (note: Mortar is an assembled weapon, gunner carries weapon)
+_MTR = "ACE_M224Proxy";																												// Mortar Gunner (note: Mortar is an assembled weapon, gunner carries weapon)
 _MTRmount = "ACE_2b14TripodProxy";																													// Mortar Assistant Gunner (note: Mortar is an assembled weapon, assistant carries bipod/tripd)
 
 _RAA = "Strela"; _RAAmag = "Strela";																										// Rifleman AA (anti-air)
@@ -446,7 +446,7 @@ switch (_typeofUnit) do
 		_unit addweapon _carbine;
 		{_unit addmagazine _smokegrenade;} foreach [1];	
 			// If not an OA unit, this attachment cannot carry a mortar
-			_unit  addbackpack _MTR;
+			_unit  addweapon _MTR;
 	};	
 	
 // LOADOUT: MORTAR ASSISTANT GUNNER
@@ -458,7 +458,7 @@ switch (_typeofUnit) do
 		_unit addWeapon "Binocular_Vector";	
 		_unit addmagazine "Laserbatteries";		
 			// If not an OA unit, this attachment cannot carry a mortar 
-			_unit addbackpack _MTRmount;
+			_unit addweapon _MTRmount;
 	};		
 	
 // LOADOUT: SNIPER

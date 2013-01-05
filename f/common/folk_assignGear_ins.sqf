@@ -410,7 +410,7 @@ switch (_typeofUnit) do
 		{_unit addmagazine _smokegrenade;} foreach [1];	
 		_unit addWeapon "Binocular_Vector";			
 			// If not an OA unit, this attachment cannot carry a mortar 
-			_unit addBackpack _MTRmount;
+			_unit addweapon _MTRmount;
 	};		
 	
 // LOADOUT: SNIPER
